@@ -36,7 +36,8 @@ class Janela_chat():
 
         #Botão para o progroma responder a pergunta
         self.button_resposta = tk.Button(self.janela,
-                            text="Perguntar")
+                            text="Perguntar",
+                            command=self.resposta)
                              
         self.button_resposta.pack()
 
@@ -49,15 +50,15 @@ class Janela_chat():
 
         
 
-def responder(self):
-    self.caixa = self.label.caixa.get()
-    resposta = self.robo.enviar_mensagem(self.caixa)
-    self.label_resultado.config(text=resposta)
+    def resposta (self):
+        pergunta = self.caixa.get()
+        resposta = self.robo.enviar_mensagem(pergunta)
+        self.label_resultado.config(text=resposta)
 
     
 
-def run(self):
-    self.janela.mainloop()
+    def run(self):
+        self.janela.mainloop()
 
 if __name__ == "__main__":
     chat = Janela_chat()

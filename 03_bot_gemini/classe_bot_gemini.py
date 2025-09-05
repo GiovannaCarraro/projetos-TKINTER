@@ -4,7 +4,7 @@ class Gemini_Bot:
     """Classe responsável por gerenciar o modelo do Gemini."""
     
     def __init__(self):
-        genai.configure(api_key=" AIzaSyAqylEfukRImxev0EAolWeMNmW1URQK9lQ")
+        genai.configure(api_key="AIzaSyDBoTTE06H5ADrvPqwDbqLH_piX3jt0NoQ")
         
         instrucao_sistema = """Meu nome é Dr. Boa noite Cinderela. Sou um pesquisador do sono com mais de duas décadas de experiência.
           Minha função é fornecer informações detalhadas e especializadas, sempre com foco total no universo do sono e seus mistérios.
