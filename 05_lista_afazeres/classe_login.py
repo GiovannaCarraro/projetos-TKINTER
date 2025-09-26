@@ -48,7 +48,7 @@ class Login():
             usuario_senha = (self.caixa_senha2.get())
             usuario_nome = (self.caixa_login2.get())
 
-            if usuario_nome == "Nathalya" and usuario_senha == "Nathalya123":
+            if usuario_nome == "123" and usuario_senha == "123":
                 #tkinter.messagebox.showinfo(title= "LOGIN", message= "Login realizado com sucesso")
                 self.janela.destroy()
                 janela = Lista_Tarefa()
