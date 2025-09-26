@@ -1,5 +1,6 @@
 import ttkbootstrap as tk
 from tkinter import Listbox, END
+from tkinter import messagebox
 
 class Lista_Tarefa():
 
@@ -36,7 +37,8 @@ class Lista_Tarefa():
         botao_excluir = tk.Button(frame_botao, text="Excluir", command= self.excluir, bootstyle = "danger" )
         botao_excluir.pack(side="left")
 
-        botao_marcar = tk.Button(frame_botao, text="Marcar como concluido")
+        botao_marcar = tk.Button(frame_botao, command= self.marcar_como_concluida,
+                                 text="Marcar como concluido")
         botao_marcar.pack(side="right")
 
     def adicionar (self):
@@ -45,9 +47,24 @@ class Lista_Tarefa():
         self.lista.insert(END, tarefa) #END: CONSTNATE: variavel fixa
 
     def excluir(self):
-        selecionar = self.lista.curselection()
-        self.lista.delete(selecionar[0])  
+            selecionar = self.lista.curselection()
+            if selecionar:
+                self.lista.delete(selecionar[0])
 
+            else:
+             messagebox.showerror(message="selecione um item antes de excluir")
+          
+
+    def marcar_como_concluida(self):
+        marcar = self.lista.curselection()
+        if marcar:
+            item = self.lista.get(marcar)
+            self.lista.delete(marcar)
+            self.lista.insert(marcar, item  + "                     concluido")
+            self.lista.itemconfig(marcar, {"fg": "green", "selectbackground": "green"})
+        else:
+            messagebox.showerror("Aviso! selecione uma tarefa para concluir")
+    
     def run (self):
         self.janela.mainloop()
 
