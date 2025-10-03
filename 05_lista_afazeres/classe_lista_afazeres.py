@@ -1,10 +1,12 @@
 import ttkbootstrap as tk
 from tkinter import Listbox, END
 from tkinter import messagebox
+import sqlite3
 
 class Lista_Tarefa():
 
     def __init__(self):
+
         self.janela = tk.Window(themename="minty")
         self.janela.title = ("Lista De Afazeres")
         self.janela.configure(bg="")
@@ -41,10 +43,67 @@ class Lista_Tarefa():
                                  text="Marcar como concluido")
         botao_marcar.pack(side="right")
 
+        #conectando ao banco de dados
+        conexao = sqlite3.connect("05_lista_afazeres/bd_lista_tarefa.sqlite")
+
+        #cursor = resp. por comandar o bd
+        cursor = conexao.cursor()
+
+        sql_para_criar_tabela = """
+                CREATE TABLE IF NOT EXISTS tarefa (
+                codigo integer primary key autoincrement,
+                tarefa varchar(200)
+                );
+                                     """
+        cursor.execute(sql_para_criar_tabela)
+
+        #comitei as alterações
+        conexao.commit()
+
+        #fechei a conexão
+        cursor.close()
+        conexao.close()
+
+        #att a lista
+        conexao = sqlite3.connect("05_lista_afazeres/bd_lista_tarefa.sqlite")
+        cursor = conexao.cursor()
+        
+        sql_select = """
+                SELECT codigo, descricao_tarefa FROM tarefa;
+                        """
+        
+        cursor.execute(sql_select)
+
+        #fecthall lista de listas (retorna tudo)
+        lista_afazeres = cursor.fetchall()
+        
+        cursor.close()
+        conexao.close()
+
+
+
     def adicionar (self):
         tarefa = self.add_tarefa.get()
         #inserindo a tarefa na lista
         self.lista.insert(END, tarefa) #END: CONSTNATE: variavel fixa
+         
+        conexao = sqlite3.connect("05_lista_afazeres/bd_lista_tarefa.sqlite")
+        cursor = conexao.cursor()
+
+        sql_insert = """
+                INSERT INTO tarefa (tarefa)
+                VALUES (?)
+                     """
+        
+        cursor.execute(sql_insert,[tarefa])
+
+        conexao.commit()
+
+        cursor.close()
+        conexao.close()
+
+
+
 
     def excluir(self):
             selecionar = self.lista.curselection()
