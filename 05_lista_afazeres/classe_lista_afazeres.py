@@ -69,18 +69,20 @@ class Lista_Tarefa():
         cursor = conexao.cursor()
         
         sql_select = """
-                SELECT codigo, descricao_tarefa FROM tarefa;
+                SELECT codigo,tarefa FROM tarefa;
                         """
         
         cursor.execute(sql_select)
 
         #fecthall lista de listas (retorna tudo)
         lista_afazeres = cursor.fetchall()
-        
+
         cursor.close()
         conexao.close()
 
-
+        #inserindo os itens 
+        for linha in lista_afazeres:
+            self.lista.insert("end", linha[1])
 
     def adicionar (self):
         tarefa = self.add_tarefa.get()
