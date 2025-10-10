@@ -24,7 +24,7 @@ class Login():
         self.caixa_login1.pack()
 
         self.caixa_login2 = tk.Entry(font=("Arial", 18))
-        self.caixa_login2.pack(pady=20)
+        self.caixa_login2.pack(pady=20)                                                                     
 
         self.caixa_senha1 = tk.Label(self.janela,
                                     text="Digite sua Senha",

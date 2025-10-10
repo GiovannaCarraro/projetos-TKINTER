@@ -114,7 +114,6 @@ class Lista_Tarefa():
 
             else:
              messagebox.showerror(message="selecione um item antes de excluir")
-          
 
     def marcar_como_concluida(self):
         marcar = self.lista.curselection()
@@ -125,6 +124,22 @@ class Lista_Tarefa():
             self.lista.itemconfig(marcar, {"fg": "green", "selectbackground": "green"})
         else:
             messagebox.showerror("Aviso! selecione uma tarefa para concluir")
+        
+
+        if "concluido" not in item:
+            with sqlite3.connect("05_lista_afazeres/bd_lista_tarefa.sqlite") as conexao:
+                texto_concluido = item +  "            concluido"
+                cursor = conexao.cursor()
+
+                sqlupdate = """
+                            UPDATE tarefa
+                            SET tarefa = ?
+                            WHERE tarefa = ?
+                            """
+                valores = (texto_concluido, item)
+
+                cursor.execute(sqlupdate, valores)
+                
     
     def run (self):
         self.janela.mainloop()
