@@ -1,11 +1,11 @@
 import ttkbootstrap as tk
 import tkinter.messagebox
-from classe_lista_afazeres import Lista_Tarefa
+
 
 class Login():
 
-    def __init__(self):
-        self.janela = tk.Window(themename="minty")
+    def __init__(self, janela_pai):
+        self.janela = tk.Toplevel(janela_pai)
         self.janela.title = ("Lista De Afazeres")
         self.janela.configure(bg="")
         self.janela.geometry("800x500") 
@@ -23,7 +23,7 @@ class Login():
                                     font=("Arial"))
         self.caixa_login1.pack()
 
-        self.caixa_login2 = tk.Entry(font=("Arial", 18))
+        self.caixa_login2 = tk.Entry(self.janela, font=("Arial", 18))
         self.caixa_login2.pack(pady=20)                                                                     
 
         self.caixa_senha1 = tk.Label(self.janela,
@@ -32,13 +32,13 @@ class Login():
                                 
         self.caixa_senha1.pack()
 
-        self.caixa_senha2 = tk.Entry(show="*",
+        self.caixa_senha2 = tk.Entry(self.janela, show="*",
                                     font= ("Arial", 18))
         
         
         self.caixa_senha2.pack(pady= 20)
         
-        frame_botao = tk.Frame()
+        frame_botao = tk.Frame(self.janela)
         frame_botao.pack()
 
         tk.Button(frame_botao, text = "Login", command=self.logar, padding=(10)).pack(side="left",padx=10)
@@ -51,8 +51,8 @@ class Login():
             if usuario_nome == "123" and usuario_senha == "123":
                 #tkinter.messagebox.showinfo(title= "LOGIN", message= "Login realizado com sucesso")
                 self.janela.destroy()
-                janela = Lista_Tarefa()
-                janela.run()
+                # janela = Lista_Tarefa()
+                # janela.run()
                
 
             else:
