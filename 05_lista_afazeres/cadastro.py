@@ -3,10 +3,10 @@ import tkinter.messagebox
 
 
 class Cadastro():
-    def __init__(self):
+    def __init__(self, janela_pai):
 
-        self.janela = tk.Window(themename="minty")
-        self.janela.title = ("Painel de Cadastro")
+        self.janela = tk.Toplevel(janela_pai)
+        self.janela.title  ("Painel de Cadastro")
         self.janela.configure(bg="")
         self.janela.geometry("800x500") 
         self.janela.resizable(False, False)
@@ -17,6 +17,14 @@ class Cadastro():
                         font="Arial",
                         foreground="")
         self.label_titulo.pack(pady=20)
+
+        self.caixa_senha3 = tk.Label(self.janela,
+                                    text="Digite seu nome completo",
+                                    font=("Arial"))
+        self.caixa_senha3.pack()
+
+        self.caixa_login3 = tk.Entry(font=("Arial", 18))
+        self.caixa_login3.pack(pady=10)
 
         self.caixa_senha = tk.Label(self.janela,
                                     text="Digite seu nome de usuario",
@@ -38,25 +46,26 @@ class Cadastro():
         frame_botao = tk.Frame()
         frame_botao.pack()
 
-        tk.Button(frame_botao, text = "Login", command=self.logar, padding=(10)).pack(side="left",padx=10)
-        tk.Button(frame_botao, text = "Sair", command=self.sair, padding=(10), bootstyle = "danger").pack(side="right",pady=10)
+        
+    #     tk.Button(frame_botao, text = "Sair", command=self.sair, padding=(10), bootstyle = "danger").pack(side="right",pady=10)
+    #     tk.Button(frame_botao, text = "Cadastrar-se", command=self.cadastro, padding=(10), bootstyle = "danger").pack(side="right",pady=10)
 
-    def logar (self):
-        usuario_senha = (self.caixa_senha2.get())
-        usuario_nome = (self.caixa_login1.get())
-        if usuario_nome == "123" and usuario_senha == "123":
+    # def cadastro (self):
+    #     usuario_senha = (self.caixa_senha2.get())
+    #     usuario_nome = (self.caixa_login1.get())
+    #     if usuario_nome == "123" and usuario_senha == "123":
                 
-            self.janela.destroy()
-            janela = Cadastro()
-            janela.run()
+    #         self.janela.destroy()
+    #         janela = Cadastro()
+    #         janela.run()
             
-        else:
-                tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
+    #     else:
+    #             tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
 
-    def sair (self):
-        resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
-        if resposta == True:
-            exit()
+    # def sair (self):
+    #     resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
+    #     if resposta == True:
+    #         exit()
 
        
 
@@ -65,6 +74,7 @@ class Cadastro():
     def run (self):
         self.janela.mainloop()
 
+#Chamando sem nenhuma janela pai
 if __name__ == "__main__":
-    janela = Cadastro()
+    janela = Cadastro("")
     janela.run()

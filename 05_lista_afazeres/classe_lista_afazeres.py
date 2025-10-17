@@ -69,6 +69,9 @@ class Lista_Tarefa():
         
         self.atualizar()
 
+        #escondendo a janela da lista tarefas
+        self.janela.withdraw()
+
     def atualizar(self):
         conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
         cursor = conexao.cursor()
