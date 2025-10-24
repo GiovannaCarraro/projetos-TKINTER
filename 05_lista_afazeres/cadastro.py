@@ -115,15 +115,8 @@ class Cadastro():
                             senha))
             conexao.commit()
 
-            cursor.close()
-            conexao.close()
-            cursor.execute(
-                """SELECT nome, usuario FROM usuario
-                    WHERE usuario = ? AND senha = ?;
-                    """,
-                    [usuario, senha]
-            )
-
+           
+              
             tkinter.messagebox.showinfo("Cadastrado", "cadastrado com sucesso!")
 
         except:

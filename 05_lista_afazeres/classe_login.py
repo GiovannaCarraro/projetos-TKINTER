@@ -69,14 +69,22 @@ class Login():
 
             conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
             cursor = conexao.cursor()
-            sql_
+            cursor.execute(
+                """SELECT nome, usuario FROM usuario
+                    WHERE usuario = ? AND senha = ?;
+                    """,
+                    [usuario_nome, usuario_senha]
+            )
 
-            if usuario_nome == "123" and usuario_senha == "123":
-                #tkinter.messagebox.showinfo(title= "LOGIN", message= "Login realizado com sucesso")
-                
+            rstld = cursor.fetchone()
+            conexao.close()
+
+
+            #se o resultado for diferente de vazio, ou (if rsltd != None), ele encontrou algm c essa informação, eu abro a tela de lista de tarefas
+            if rstld:
+                tkinter.messagebox.showinfo(title="Login realizado com sucesso", message=f"Bem vinde, {rstld[0]}!")
                 self.janela.destroy()
-                self.janela_pai.deiconify()
-               
+                self.janela.deiconify()
 
             else:
                  tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
