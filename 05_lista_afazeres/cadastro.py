@@ -1,6 +1,8 @@
 import ttkbootstrap as tk
 import tkinter.messagebox
 import sqlite3
+import tkinter.messagebox
+
 
 
 class Cadastro():
@@ -53,22 +55,25 @@ class Cadastro():
 
         self.criar_tabela()
 
-    def cadastro (self):
-        usuario_senha = (self.caixa_senha2.get())
-        usuario_nome = (self.caixa_login1.get())
-        if usuario_nome == "123" and usuario_senha == "123":
-                
-            self.janela.destroy()
-            janela = Cadastro()
-            janela.run()
-            
-        else:
-                tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
 
-    def sair (self):
-        resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
-        if resposta == True:
-            exit()
+        
+    # def cadastro (self):
+        
+    #     usuario_senha = (self.caixa_senha2.get())
+    #     usuario_nome = (self.caixa_login1.get())
+    #     if usuario_nome == "123" and usuario_senha == "123":
+                
+    #         self.janela.destroy()
+    #         janela = Cadastro()
+    #         janela.run()
+            
+    #     else:
+    #             tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
+
+    # def sair (self):
+    #     resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
+    #     if resposta == True:
+    #         exit()
 
        
 
@@ -80,7 +85,7 @@ class Cadastro():
         cursor.execute("""CREATE TABLE IF NOT EXISTS usuario (
                 nome varchar(80),
                 senha varchar(20),
-                usuario varchar(20) PRIMARY KEY
+                usuario varchar(20) PRIMARY KEY)
                     """)
         conexao.commit()
 
@@ -89,35 +94,46 @@ class Cadastro():
         conexao.close()
 
     def inserir(self):
-        conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
-        cursor = conexao.cursor()
+        try:
+            conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
+            cursor = conexao.cursor()
 
-        nome = self.caixa_senha3.get()
-        usuario = self.caixa_senha.get()
-        senha = self.caixa_senha2.get()
+            nome = self.caixa_login3.get()
+            usuario = self.caixa_login1.get()
+            senha = self.caixa_senha2.get()
 
-        cursor.execute("""INSERT INTO usuario
-                            (nome,
+            cursor.execute("""INSERT INTO usuario
+                                (nome,
+                                usuario,
+                                senha)
+                                VALUES (?,
+                                        ?,
+                                        ?);
+                        """,
+                        (nome, 
                             usuario,
-                            senha)
-                            VALUES (?,
-                                    ?,
-                                    ?);
-                       """,
-                       (nome, 
-                        usuario,
-                        senha))
-        conexao.commit()
+                            senha))
+            conexao.commit()
 
-        cursor.close()
-        conexao.close()
+            cursor.close()
+            conexao.close()
 
-        
+            
+
+            tkinter.messagebox.showinfo("Cadastrado", "cadastrado com sucesso!")
+
+        except:
+            tkinter.messagebox.showerror("Erro", "Erro ao se cadastrar!")
+            conexao.close()
+
+            
+
+   
 
     def run (self):
         self.janela.mainloop()
 
 #Chamando sem nenhuma janela pai
-if __name__ == "__main__":
+if __name__ == "__main__": 
     janela = Cadastro("")
     janela.run()

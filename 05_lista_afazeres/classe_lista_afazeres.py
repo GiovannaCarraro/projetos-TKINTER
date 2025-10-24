@@ -149,7 +149,8 @@ class Lista_Tarefa():
                 valores = (texto_concluido, item)
 
                 cursor.execute(sqlupdate, valores)
-                
+        
+        
     
     def run (self):
         self.janela.mainloop()
