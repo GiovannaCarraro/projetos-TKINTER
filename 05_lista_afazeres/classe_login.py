@@ -1,5 +1,7 @@
 import ttkbootstrap as tk
 import tkinter.messagebox
+from cadastro import Cadastro
+import sqlite3
 
 
 
@@ -50,26 +52,43 @@ class Login():
         frame_botao = tk.Frame(self.janela)
         frame_botao.pack()
 
+
+
         tk.Button(frame_botao, text = "Login", command=self.logar, padding=(10)).pack(side="left",padx=10)
         tk.Button(frame_botao, text = "Sair", command=self.sair, padding=(10), bootstyle = "danger").pack(side="right",pady=10)
+
+        tk.Button(self.janela,
+                text="Cadastro",
+                style = "Primary",
+                command=self.abrir_tela_cadastro).pack()
+
        
     def logar (self):
             usuario_senha = (self.caixa_senha2.get())
             usuario_nome = (self.caixa_login2.get())
 
+            conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
+            cursor = conexao.cursor()
+            sql_
+
             if usuario_nome == "123" and usuario_senha == "123":
                 #tkinter.messagebox.showinfo(title= "LOGIN", message= "Login realizado com sucesso")
                 
                 self.janela.destroy()
-              
                 self.janela_pai.deiconify()
                
 
             else:
                  tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
 
+                
+
     def run (self):
         self.janela.mainloop()
+
+    def abrir_tela_cadastro(self):
+        Cadastro(self.janela)
+         
 
     def sair (self):
         resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")

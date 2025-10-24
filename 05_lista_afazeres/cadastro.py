@@ -57,23 +57,23 @@ class Cadastro():
 
 
         
-    # def cadastro (self):
+    def cadastro (self):
         
-    #     usuario_senha = (self.caixa_senha2.get())
-    #     usuario_nome = (self.caixa_login1.get())
-    #     if usuario_nome == "123" and usuario_senha == "123":
+        usuario_senha = (self.caixa_senha2.get())
+        usuario_nome = (self.caixa_login1.get())
+        if usuario_nome == "123" and usuario_senha == "123":
                 
-    #         self.janela.destroy()
-    #         janela = Cadastro()
-    #         janela.run()
+            self.janela.destroy()
+            janela = Cadastro()
+            janela.run()
             
-    #     else:
-    #             tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
+        else:
+                tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
 
-    # def sair (self):
-    #     resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
-    #     if resposta == True:
-    #         exit()
+    def sair (self):
+        resposta = tkinter.messagebox.askyesno(title="LOGIN", message= "Você deseja sair?")
+        if resposta == True:
+            exit()
 
        
 
@@ -117,8 +117,12 @@ class Cadastro():
 
             cursor.close()
             conexao.close()
-
-            
+            cursor.execute(
+                """SELECT nome, usuario FROM usuario
+                    WHERE usuario = ? AND senha = ?;
+                    """,
+                    [usuario, senha]
+            )
 
             tkinter.messagebox.showinfo("Cadastrado", "cadastrado com sucesso!")
 
@@ -126,14 +130,7 @@ class Cadastro():
             tkinter.messagebox.showerror("Erro", "Erro ao se cadastrar!")
             conexao.close()
 
-            
-
-   
 
     def run (self):
         self.janela.mainloop()
 
-#Chamando sem nenhuma janela pai
-if __name__ == "__main__": 
-    janela = Cadastro("")
-    janela.run()
