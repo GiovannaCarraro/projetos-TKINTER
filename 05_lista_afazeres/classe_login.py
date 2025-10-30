@@ -5,15 +5,18 @@ import sqlite3
 
 
 
+
+
 class Login():
 
-    def __init__(self, janela_pai):
+    def __init__(self, classe_pai):
 
         #Tranformando em atributo pra usar em qlqr função
-        self.janela_pai = janela_pai
+        self.janela_pai = classe_pai
+        self.classe_pai = classe_pai
         
 
-        self.janela = tk.Toplevel(janela_pai)
+        self.janela = tk.Toplevel(self.janela_pai)
         self.janela.title = ("Lista De Afazeres")
         self.janela.configure(bg="")
         self.janela.geometry("800x500") 
@@ -64,32 +67,44 @@ class Login():
 
        
     def logar (self):
-            usuario_senha = (self.caixa_senha2.get())
-            usuario_nome = (self.caixa_login2.get())
+            usuario_senha = self.caixa_senha2.get()
+            usuario_nome = self.caixa_login2.get()
 
             conexao = sqlite3.connect("./bd_lista_tarefa.sqlite")
             cursor = conexao.cursor()
-            cursor.execute(
-                """SELECT nome, usuario FROM usuario
+            verificar ="""SELECT * FROM usuario
                     WHERE usuario = ? AND senha = ?;
-                    """,
-                    [usuario_nome, usuario_senha]
-            )
+                    """
+            # valores = [usuario_nome, usuario_senha]
 
-            rstld = cursor.fetchone()
+            cursor.execute(verificar, [usuario_nome, usuario_senha]) 
+            
+
+            rstd = cursor.fetchone()
+           
             conexao.close()
 
 
             #se o resultado for diferente de vazio, ou (if rsltd != None), ele encontrou algm c essa informação, eu abro a tela de lista de tarefas
-            if rstld:
-                tkinter.messagebox.showinfo(title="Login realizado com sucesso", message=f"Bem vinde, {rstld[0]}!")
+            if rstd != None:
+                tkinter.messagebox.showinfo(title="Login realizado com sucesso", message=f"Bem vinde, {rstd[0]}!")
                 self.janela.destroy()
-                self.janela.deiconify()
+                self.janela_pai.janela.deiconify()
+                #enviando para a janela de afazeres qual o usuario q logou
+                self.classe_pai.usuario_logado = usuario_nome
+                #att lista
+                self.classe_pai.atualizar()
 
             else:
                  tkinter.messagebox.showerror(title="ERRO", message="Senha inválida")
 
-                
+    
+
+    def tela_cadastro(self):
+        self.janela.withdraw()
+        TelaCadastro = Cadastro(PaidoCadastro=self.janela)
+        TelaCadastro.run()
+
 
     def run (self):
         self.janela.mainloop()

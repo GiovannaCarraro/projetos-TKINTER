@@ -70,7 +70,7 @@ class Lista_Tarefa():
         cursor.close()
         conexao.close()
 
-        janela_login = Login(self.janela)
+        janela_login = Login(self)
         
         self.atualizar()
 
@@ -82,10 +82,10 @@ class Lista_Tarefa():
         cursor = conexao.cursor()
         
         sql_select = """
-                SELECT codigo,tarefa FROM tarefa;
+                SELECT codigo,tarefa FROM tarefa WHERE usuario = ?;
                         """
         
-        cursor.execute(sql_select)
+        cursor.execute(sql_select, [self.usuario_logado])
 
         #fecthall lista de listas (retorna tudo)
         lista_afazeres = cursor.fetchall()
@@ -108,12 +108,12 @@ class Lista_Tarefa():
         cursor = conexao.cursor()
 
         sql_insert = """
-                INSERT INTO tarefa (tarefa)
+                INSERT INTO tarefa (tarefa, usuario)
                 VALUES (?, ?)
             
                      """
         
-        cursor.execute(sql_insert,[tarefa])
+        cursor.execute(sql_insert,[tarefa, self.usuario_logado])
 
         conexao.commit()
 
