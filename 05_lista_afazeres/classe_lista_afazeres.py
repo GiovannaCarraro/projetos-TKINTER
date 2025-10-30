@@ -8,6 +8,10 @@ class Lista_Tarefa():
 
     def __init__(self):
 
+        #Usuario q esta logado
+        self.usuario_logado = None
+
+        #Criando janela
         self.janela = tk.Window(themename="minty")
         self.janela.title ("Lista De Afazeres")
         # self.janela.configure(bg="")
@@ -53,7 +57,8 @@ class Lista_Tarefa():
         sql_para_criar_tabela = """
                 CREATE TABLE IF NOT EXISTS tarefa (
                 codigo integer primary key autoincrement,
-                tarefa varchar(200)
+                tarefa varchar(200),
+                usuario varchar(20)
                 );
                                      """
         cursor.execute(sql_para_criar_tabela)
@@ -104,7 +109,8 @@ class Lista_Tarefa():
 
         sql_insert = """
                 INSERT INTO tarefa (tarefa)
-                VALUES (?)
+                VALUES (?, ?)
+            
                      """
         
         cursor.execute(sql_insert,[tarefa])
@@ -113,8 +119,6 @@ class Lista_Tarefa():
 
         cursor.close()
         conexao.close()
-
-
 
 
     def excluir(self):
