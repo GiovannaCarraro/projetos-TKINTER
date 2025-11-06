@@ -173,7 +173,7 @@ class Alunos:
             messagebox.showinfo("Atenção", "Selecione um aluno na lista para alterar!")
             return
             
-        id = item_selecionado 
+        id = item_selecionado[0]
         nome = self.entrada_nome.get()
         turma = self.entrada_turma.get()
         email = self.entrada_email.get()
