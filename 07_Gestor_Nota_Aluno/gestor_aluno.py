@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 import sqlite3
-from tkinter import messagebox 
+from tkinter import messagebox, Toplevel  #O TopLevel serve para criar janela "filha" da janela principal
 
 class Alunos:
 
@@ -9,7 +9,7 @@ class Alunos:
         # Interface 
         self.janela = ttk.Window(themename="minty")
         self.janela.title("Gerenciador de Alunos")
-        self.janela.geometry("900x800")
+        self.janela.geometry("1200x1000")
         self.janela.resizable(False, False)
 
         # Título
@@ -42,13 +42,12 @@ class Alunos:
         frame_botao = ttk.Frame(self.janela)
         frame_botao.pack()
 
-        ttk.Button(frame_botao, text="Adicionar", command=self.cadastrar_aluno, bootstyle="sucess").pack(side='left', padx=5) #Create
+        ttk.Button(frame_botao, text="Adicionar", command=self.cadastrar_aluno, bootstyle="success").pack(side='left', padx=5) #Create
         ttk.Button(frame_botao, text="Alterar", command=self.alterar_aluno, bootstyle="warning").pack(side='left', padx=5) # Update
         ttk.Button(frame_botao, text="Excluir", command=self.excluir_aluno, bootstyle= "danger").pack(side='left', padx=5) # Delete
 
-        #Botões desafio extra
-        ttk.Button(frame_botao, text="Ver Notas", command=self.adicionar_nota, bootstyle="primary").pack(side='left', padx=15)
-        ttk.Button(frame_botao, text="Adicionar Nota", command=self.janela_notas, bootstyle="info").pack(side='left', padx=15)
+        #Botão desafio extra
+        ttk.Button(frame_botao, text="Adicionar Nota", command=self.mostrar_cadastro_notas, bootstyle="info").pack(side='left', padx=15)
 
         ttk.Label(self.janela, text="Gerenciamento de Alunos",
                 font=("Arial", 18, )).pack(pady=10)
@@ -68,10 +67,13 @@ class Alunos:
         self.treeview.column("turma", width=200, anchor= "center")
         self.treeview.column("email", width=200, anchor= "center")
 
+        # Faz o app att a lista de notas automaticamente quando clica em um aluno, ai deixa a interface mais bonitinha
+        self.treeview.bind("<<TreeviewSelect>>", self.aluno_selecionado)
 
-        # Muda o tamanho (aprendi isso hj)
-        ttk.Style().configure("Treeview", rowheight=40)
+        # Muda o tamanho de comprimento (aprendi isso hj)
+        ttk.Style().configure("Treeview", rowheight=30)
 
+        # Adiciona uma nova linha no final do Treeview com três colunas, todas vazias
         self.treeview.insert("", "end", values =["", "", ""])
 
         # Bd
@@ -86,23 +88,20 @@ class Alunos:
         )
         """)
 
-        # Tabela 2
+        # Tabela 2 desafio extra
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS notas (
+       CREATE TABLE IF NOT EXISTS notas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         aluno_id INTEGER NOT NULL,
         disciplina TEXT NOT NULL,
-        nota INT NOT NULL,
+        nota REAL NOT NULL,
         FOREIGN KEY (aluno_id) REFERENCES alunos (id)
-        )
+)
         """)
         conexao.commit()
         conexao.close()
 
-        # NOVO: Título e Treeview de Notas
-        ttk.Label(self.janela, text="Notas do Aluno Selecionado",
-                  font=("Arial", 18, )).pack(pady=10)
-
+        #Treeview das notas
         self.treeview_notas = ttk.Treeview(self.janela)
         self.treeview_notas.pack()
 
@@ -114,43 +113,22 @@ class Alunos:
         self.treeview_notas.heading("Nota", text="Nota")
 
         self.treeview_notas.column("ID_Nota", width=100, anchor="center")
-        self.treeview_notas.column("Disciplina", width=300, anchor="w")
+        self.treeview_notas.column("Disciplina", width=300, anchor="center")
         self.treeview_notas.column("Nota", width=100, anchor="center")
+        
+        #Configura o tamanho comprimento
+        ttk.Style().configure("Treeview", rowheight=25)
         
         self.att_lista()
 
-    def att_lista (self):
-        # Limpa o treeview antes de preencher
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
-
-
-        #Limpa a lista de notas ao recarregar
-        for item in self.treeview_notas.get_children():
-            self.treeview_notas.delete(item)
-        
-        conexao = sqlite3.connect("alunos.db")
-        cursor = conexao.cursor()
-        # Pega todos os dados da tabela
-        cursor.execute("""SELECT id, nome, turma, email
-                    FROM alunos 
-                    ORDER BY id DESC""")
-        
-        alunos = cursor.fetchall()
-        conexao.close()
-
-        for aluno in alunos:
-            self.treeview.insert("", "end", 
-                            id=aluno[0], values=[aluno[1], aluno[2], aluno[3]])
-
     def cadastrar_aluno(self):
         
-        #Pega os valores dos campos de entrada
+        # Pega os valores dos campos de entrada
             nome = self.entrada_nome.get()
             turma = self.entrada_turma.get()
             email = self.entrada_email.get()
             
-            #Verifica se os campos estão preenchidos
+            # Verifica se os campos estão preenchidos
             if not nome or not turma or not email:
                 messagebox.showerror("Erro", "Todos os campos devem ser preenchidos!")
                 return
@@ -158,8 +136,10 @@ class Alunos:
             try:
                 conexao = sqlite3.connect("alunos.db")
                 cursor = conexao.cursor()
+
                 # Insere o novo aluno
-                cursor.execute("""INSERT INTO alunos (nome, turma, email)
+                cursor.execute("""INSERT INTO alunos 
+                               (nome, turma, email)
                                 VALUES (?, ?, ?)""", 
                                 (nome, turma, email))
                 conexao.commit()
@@ -178,32 +158,140 @@ class Alunos:
             except:
                 messagebox.showerror("Erro!", "Ocorreu um erro ao tentar cadastrar um aluno.")
 
+    def att_lista (self):
+        # Limpa o treeview antes de preencher
+        for item in self.treeview.get_children():
+            self.treeview.delete(item)
+
+
+        #Limpa a lista de notas ao recarregar
+        for item in self.treeview_notas.get_children():
+            self.treeview_notas.delete(item)
+        
+        conexao = sqlite3.connect("alunos.db")
+        cursor = conexao.cursor()
+
+        # Pega todos os dados da tabela
+        cursor.execute("""SELECT id, nome, turma, email
+                    FROM alunos 
+                    ORDER BY id DESC""")
+        
+        #prga TODOS os resultados
+        alunos = cursor.fetchall()
+        conexao.close()
+
+        # Uma nova linha é adicionada no Treeview
+        # Cada coluna da linha recebe os valores: nome, turma e email
+        # A linha recebe um identificador (iid) igual ao id do aluno no banco de dados
+        for aluno in alunos:
+         self.treeview.insert("", "end", iid=str(aluno[0]), values=[aluno[1], aluno[2], aluno[3]])
+
+    def mostrar_cadastro_notas(self):
+        selecao = self.treeview.selection()
+        
+        if not selecao:
+            messagebox.showinfo("Atenção", "Selecione um aluno na lista para adicionar notas.")
+            return
+
+        aluno_id = selecao[0]
+        aluno_nome = self.treeview.item(aluno_id, 'values')[0] 
+
+        # Cria nova janela "filha"
+        self.janela_notas = ttk.Toplevel(self.janela)
+        self.janela_notas.title(f"Adicionar Nota {aluno_nome}")
+        self.janela_notas.geometry("400x300")
+        self.janela_notas.resizable(False, False)
+
+        ttk.Label(self.janela_notas,
+                text=f"Adicionar Nota para {aluno_nome}", 
+                font=("Arial", 18)).pack(pady=10)
+
+        # Disciplina
+        ttk.Label(self.janela_notas, text="Disciplina:").pack(pady=5)
+        self.entrada_disciplina = ttk.Entry(self.janela_notas,
+                                            font=("Arial", 18))
+        
+        self.entrada_disciplina.pack(pady=5)
+
+        # Nota
+        ttk.Label(self.janela_notas, text="Nota:").pack(pady=5)
+        self.entrada_nota_valor = ttk.Entry(self.janela_notas,
+                                            font=("Arial", 18))
+        
+        self.entrada_nota_valor.pack(pady=5)
+
+        # Botão Salvar
+        # A função lambda cria uma função anônima que só é executada quando o botão é clicado, e não no momento da criação
+        ttk.Button(self.janela_notas, text="Salvar Nota", 
+                   command=lambda: self.salvar_nota(aluno_id),
+                   bootstyle="success").pack(pady=20)
+
+        
+    def salvar_nota(self, aluno_id):
+        # Pega as info de disciplna e nota
+        disciplina = self.entrada_disciplina.get()
+        nota = self.entrada_nota_valor.get()
+
+        # Validação
+        if not disciplina or not nota:
+            messagebox.showerror("Erro", "Preencha todos os campos.")
+            return
+        
+        # Replace: substitui todas as vírgulas , por ponto . dentro de nota.
+        try:
+            nota = float(nota.replace(',', '.'))
+        except:
+            messagebox.showerror("Erro", "A nota deve ser um número válido.")
+            return
+        
+        #Insere
+        try:
+            conexao = sqlite3.connect("alunos.db")
+            cursor = conexao.cursor()
+            cursor.execute("""INSERT INTO notas 
+                           (aluno_id, disciplina, nota)
+                            VALUES (?, ?, ?)""",
+                           (aluno_id, disciplina, nota))
+            
+            conexao.commit()
+            conexao.close()
+
+            messagebox.showinfo("Sucesso", "Nota adicionada com sucesso!")
+
+            # Fecha a janela de notas e atualiza lista
+            self.janela_notas.destroy()
+            self.carregar_notas(aluno_id)
+
+        except:
+            messagebox.showerror("Erro", f"Erro ao adicionar nota")
+
     def excluir_aluno(self):
-    
+        # Pega os itens selecionados no Treeview
         item_selecionado = self.treeview.selection()
         
+        # Verifica
         if not item_selecionado:
             messagebox.showinfo("Atenção", "Selecione um aluno para excluir!")
             return
         
-        # O id é o id interno do item selecionado, que é o id do aluno no banco de dados
+        # Pega o ID do primeiro item selecionado
         aluno_id = item_selecionado[0] 
         nome_aluno = self.treeview.item(aluno_id, "values")[0] 
         
+
         confirmar = messagebox.showinfo("Confirmação", f"Tem certeza que deseja excluir o aluno '{nome_aluno}' e todas as suas notas?")
         
         if confirmar:
             conexao = sqlite3.connect("alunos.db")
             cursor = conexao.cursor()
+            # Deleta todas as notas do aluno no banco, usando aluno_id como referência
+            cursor.execute("""DELETE FROM notas 
+                           WHERE aluno_id = ?""", 
+                           (aluno_id,))
             
-            # Exclui as notas primeiro 
-            cursor.execute("""DELETE FROM notas
-                            WHERE aluno_id = ?""",
-                            (aluno_id,))
-            
-            # Exclui o aluno
-            cursor.execute("""DELETE FROM alunos 
-                            WHERE id = ?""",
+            # Deleta o registro do aluno na tabela alunos
+            cursor.execute("""DELETE FROM alunos
+                            WHERE id = ?""", 
                             (aluno_id,))
             
             conexao.commit()
@@ -211,13 +299,27 @@ class Alunos:
             
             messagebox.showinfo("Sucesso", f"Aluno '{nome_aluno}' excluído com sucesso!")
 
-
+            # Limpar campos após exclusão
+            self.entrada_nome.delete(0, 'end')
+            self.entrada_turma.delete(0, 'end')
+            self.entrada_email.delete(0, 'end')
+            
             self.att_lista()
 
     def limpar_notas(self):
-        # Limpa a Treeview de Notas
+        # Essa função apaga todas as linhas do treeview, limpa completamente a tabela de notas na interface
         for item in self.treeview_notas.get_children():
             self.treeview_notas.delete(item)
+
+    def aluno_selecionado(self, event):
+        # Retorna uma tupla de ids das linhas selecionadas
+        selecao = self.treeview.selection()
+        if not selecao:
+            self.limpar_notas()
+            return
+
+        aluno_id = selecao[0]
+        self.carregar_notas(aluno_id)
 
     def carregar_notas(self, aluno_id):
         self.limpar_notas()
@@ -236,85 +338,118 @@ class Alunos:
         for nota in notas:
             self.treeview_notas.insert('', 'end', values=nota)
 
-    def notas_selecionadas(self, valores):
-        
+    def cadastro_notas(self):
+       
         selecao = self.treeview.selection()
         
-        if selecao:
-            aluno_id = selecao[0] 
-                    
-            self.carregar_notas(aluno_id)
-                      
-            # Índices 0, 1, 2 corresponde a nome, turma, email do att lista
-            self.entrada_nome.insert(0, valores[0])
-            self.entrada_turma.insert(0, valores[1])
-            self.entrada_email.insert(0, valores[2])
-                    
-        else:
-            messagebox.showinfo("Atenção", "Selecione um aluno na lista para ver suas notas.")
-
-            self.limpar_notas() 
-
-    def janela_notas(self):
-        
-        selecao = self.treeview.selection()
         if not selecao:
-            messagebox.showinfo("Atenção", "Selecione um aluno para adicionar notas.")
-            return 
-
-        selecao = self.treeview.selection()
-
-        if not selecao:
-            messagebox.showinfo("Atenção", "Selecione um aluno para adicionar notas.")
+            messagebox.showinfo("Atenção", "Selecione um aluno na lista para adicionar notas.")
             return
 
-        aluno_id = selecao[0] # ID do aluno
-        aluno_nome = self.treeview.item(selecao[0], 'values')[0] # Nome
-        
-        janela_nota = (self.janela)
-        janela_nota.title(f"Adicionar Nota: {aluno_nome}")
-        janela_nota.geometry("400x250")
-        janela_nota.transient(self.janela)
+        aluno_id = selecao[0]
+        aluno_nome = self.treeview.item(aluno_id, 'values')[0] 
 
-        ttk.Label(janela_nota, text=f"Adicionar Nota para {aluno_nome}", font=("Arial", 14)).pack(pady=10)
-        
-        # Entrada Disciplina
-        ttk.Label(janela_nota, text="Disciplina:").pack(pady=2)
-        entrada_disciplina = ttk.Entry(janela_nota)
-        entrada_disciplina.pack(padx=20, fill='x')
-        
-        # Entrada Nota
-        ttk.Label(janela_nota, text="Nota (Ex: 8.5):").pack(pady=2)
-        entrada_nota = ttk.Entry(janela_nota)
-        entrada_nota.pack(padx=20, fill='x')
+        # Cria nova janela
+        self.janela_notas = ttk.Toplevel(self.janela)
+        self.janela_notas.title(f"Adicionar Nota - {aluno_nome}")
+        self.janela_notas.geometry("400x300")
+        self.janela_notas.resizable(False, False)
 
-    def adicionar_nota(self):
-        disciplina = self.entrada_disciplina.get()
-        nota= self.entrada_nota.get()
+        ttk.Label(self.janela_notas, text=f"Adicionar Nota para {aluno_nome}", 
+                  font=("Arial", 16)).pack(pady=10)
+
+        # Campo Disciplina
+        ttk.Label(self.janela_notas, text="Disciplina:").pack(pady=5)
+        self.entrada_disciplina = ttk.Entry(self.janela_notas, font=("Arial", 14))
+        self.entrada_disciplina.pack(pady=5)
+
+        # Campo Nota
+        ttk.Label(self.janela_notas, text="Nota:").pack(pady=5)
+        self.entrada_nota_valor = ttk.Entry(self.janela_notas, font=("Arial", 14))
+        self.entrada_nota_valor.pack(pady=5)
+
+        # Botão Salvar
+        ttk.Button(self.janela_notas, text="Salvar Nota", 
+                   command=lambda: self.salvar_nova_nota(aluno_id),
+                   bootstyle="success").pack(pady=20)
+
+        self.carregar_notas(aluno_id) # Atualiza a lista de notas
             
-        if not disciplina:
-            messagebox.showerror("Erro", "Preencha a disciplina.")
+
+    def visualizar_notas(self): 
+        selecao = self.treeview.selection()
+        
+        if not selecao:
+            messagebox.showinfo("Atenção", "Selecione um aluno na lista para ver suas notas.")
+            self.limpar_notas() 
+            return
+        
+        aluno_id = selecao[0] 
+        valores = self.treeview.item(aluno_id, 'values')
+        
+        # Carrega as notas
+        self.carregar_notas(aluno_id)
+        
+        # Carrega os dados do aluno nos campos de entrada
+        self.entrada_nome.delete(0, 'end')
+        self.entrada_turma.delete(0, 'end')
+        self.entrada_email.delete(0, 'end')
+
+        self.entrada_nome.insert(0, valores[0])
+        self.entrada_turma.insert(0, valores[1])
+        self.entrada_email.insert(0, valores[2])
+
+    def nota_selecionada(self, event):
+        selecao = self.treeview_notas.selection()
+        if not selecao:
+            return
+
+        nota_id = selecao[0]
+        valores = self.treeview_notas.item(nota_id, 'values')
+
+        self.entrada_disciplina.delete(0, 'end')
+        self.entrada_disciplina.insert(0, valores[1])  # Disciplina
+
+        self.entrada_nota_valor.delete(0, 'end')
+        self.entrada_nota_valor.insert(0, valores[2])  # Nota
+
+    def alterar_nota(self):
+        # Pega a nota selecionada
+        selecao_nota = self.treeview_notas.selection()
+        if not selecao_nota:
+            messagebox.showinfo("Atenção", "Selecione uma nota para alterar.")
+            return
+
+        nota_id = selecao_nota[0]
+        disciplina = self.entrada_disciplina.get()
+        nota = self.entrada_nota_valor.get()
+
+        if not disciplina or not nota:
+            messagebox.showerror("Erro", "Preencha todos os campos para alterar a nota.")
+            return
+
+        try:
+            nota = float(nota.replace(',', '.'))
+        except:
+            messagebox.showerror("Erro", "A nota deve ser um número válido.")
             return
 
         try:
             conexao = sqlite3.connect("alunos.db")
             cursor = conexao.cursor()
-            cursor.execute("""INSERT INTO notas 
-                            (aluno_id, disciplina, nota)
-                            VALUES (?, ?, ?)""", 
-                            (self.aluno_id, disciplina, nota))
-
+            cursor.execute("""
+                UPDATE notas
+                SET disciplina = ?, nota = ?
+                WHERE id = ?
+            """, (disciplina, nota, nota_id))
             conexao.commit()
             conexao.close()
-                
-            messagebox.showinfo("Sucesso", "Nota adicionada!")
-            self.janela_nota.destroy()
-            self.carregar_notas(self.aluno_id) # Atualiza a lista de notas
-                
-        except sqlite3.Error as e:
-                messagebox.showerror("Erro DB", f"Erro ao adicionar nota: {e}")
 
-        ttk.Button(self.janela_nota, text="Salvar Nota", command=self.adicionar_nota, bootstyle="success").pack(pady=15)
+            messagebox.showinfo("Sucesso", "Nota alterada com sucesso!")
+            self.carregar_notas(self.treeview.selection()[0])  # Atualiza lista de notas
+
+        except:
+            messagebox.showerror("Erro", f"Erro ao alterar nota")
 
     def alterar_aluno(self):
         
